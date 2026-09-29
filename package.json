@@ -28,7 +28,10 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "shiki": "^4.3.0",
-    "vscode-material-icons": "^0.1.1"
+    "trystero": "0.25.4",
+    "vscode-material-icons": "^0.1.1",
+    "y-protocols": "1.0.6",
+    "yjs": "13.6.33"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",

@@ -32,9 +32,18 @@ importers:
       shiki:
         specifier: ^4.3.0
         version: 4.3.0
+      trystero:
+        specifier: 0.25.4
+        version: 0.25.4
       vscode-material-icons:
         specifier: ^0.1.1
         version: 0.1.1
+      y-protocols:
+        specifier: 1.0.6
+        version: 1.0.6(yjs@13.6.33)
+      yjs:
+        specifier: 13.6.33
+        version: 13.6.33
     devDependencies:
       '@playwright/test':
         specifier: ^1.40.0
@@ -136,6 +145,9 @@ packages:
 
   '@napi-rs/wasm-runtime@1.1.1':
     resolution: {integrity: sha512-p64ah1M1ld8xjWv3qbvFwHiFVWrq1yFvV4f7w+mzaqiR4IlSgkqhcRdHwsGgomwzBH51sRY4NEowLxnaBjcW/A==}
+
+  '@noble/secp256k1@3.2.0':
+    resolution: {integrity: sha512-Z3ZAWOTxJ0EuTuZTi7Y69iK7GgrLHh8sgm45lVDhg/b3Nk1TpAiKhick2KkZisHuupeepSkyIydN/J459SdX1w==}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -296,6 +308,12 @@ packages:
 
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
+
+  '@trystero-p2p/core@0.25.4':
+    resolution: {integrity: sha512-ehvSL1FqW962XyEctXngeDF/IOM1bWmfCKBNR4vwmVa0JGfM0+dlY4TEzSEGghYp3qqGCrpFIVTxdvlBUGVO6Q==}
+
+  '@trystero-p2p/nostr@0.25.4':
+    resolution: {integrity: sha512-QDox1VVHl0ro/CLfQVUtMS9EQbtJhQM7CCsO4SGv9KrPBT+x3bmOqQ4Y6iugsLzQ6sW+a2cwUTxjDRz/BywqMg==}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -983,6 +1001,9 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  isomorphic.js@0.2.5:
+    resolution: {integrity: sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==}
+
   iterator.prototype@1.1.5:
     resolution: {integrity: sha512-H0dkQoCa3b2VEeKQBOxFph+JAbcrQdE7KC0UkqwpLmv2EC4P41QXP+rqo9wYodACiG5/WM5s9oDApTU8utwj9g==}
     engines: {node: '>= 0.4'}
@@ -1013,6 +1034,11 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
+
+  lib0@0.2.119:
+    resolution: {integrity: sha512-vh+TiejVy8Xm+hCdnRfn9BthGNvNUZdEXltNjVZL3TzRIKP3s1lnQh8pWd/Q0wCgY0FPAGVVjFF4ZiHUV3LFgA==}
+    engines: {node: '>=16'}
+    hasBin: true
 
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
@@ -1478,6 +1504,9 @@ packages:
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
 
+  trystero@0.25.4:
+    resolution: {integrity: sha512-tFYn/fO1kBeSKLUxRPKHH2n5jIuz9zlPPF9SmCVrGBiPNDGtFZyHuQONMUwftnCclTWlVsLoTus5/6eHhVEg+Q==}
+
   ts-api-utils@1.4.3:
     resolution: {integrity: sha512-i3eMG77UTMD0hZhgRS562pv83RC6ukSAC2GMNWc+9dieh/+jDM5u5YG+NHX6VNDRHQcHwmsTHctP9LhbC3WxVw==}
     engines: {node: '>=16'}
@@ -1621,6 +1650,16 @@ packages:
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
 
+  y-protocols@1.0.6:
+    resolution: {integrity: sha512-vHRF2L6iT3rwj1jub/K5tYcTT/mEYDUppgNPXwp8fmLpui9f7Yeq3OEtTLVF012j39QnV+KEQpNqoN7CWU7Y9Q==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+    peerDependencies:
+      yjs: ^13.0.0
+
+  yjs@13.6.33:
+    resolution: {integrity: sha512-q/UYvr1gOk4XII+Cu1CW2dINjYqJJFifTzogEaIARznrvX7uOlHsdTEXcnOBMuIsrCGEEKdNxi74kyMLZlKVfw==}
+    engines: {node: '>=16.0.0', npm: '>=8.0.0'}
+
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
@@ -1698,6 +1737,8 @@ snapshots:
       '@emnapi/runtime': 1.9.1
       '@tybys/wasm-util': 0.10.1
     optional: true
+
+  '@noble/secp256k1@3.2.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -1815,6 +1856,13 @@ snapshots:
       '@types/hast': 3.0.4
 
   '@shikijs/vscode-textmate@10.0.2': {}
+
+  '@trystero-p2p/core@0.25.4': {}
+
+  '@trystero-p2p/nostr@0.25.4':
+    dependencies:
+      '@noble/secp256k1': 3.2.0
+      '@trystero-p2p/core': 0.25.4
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -2680,6 +2728,8 @@ snapshots:
 
   isexe@2.0.0: {}
 
+  isomorphic.js@0.2.5: {}
+
   iterator.prototype@1.1.5:
     dependencies:
       define-data-property: 1.1.4
@@ -2716,6 +2766,10 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  lib0@0.2.119:
+    dependencies:
+      isomorphic.js: 0.2.5
 
   lightningcss-android-arm64@1.32.0:
     optional: true
@@ -3233,6 +3287,10 @@ snapshots:
 
   trim-lines@3.0.1: {}
 
+  trystero@0.25.4:
+    dependencies:
+      '@trystero-p2p/nostr': 0.25.4
+
   ts-api-utils@1.4.3(typescript@5.6.3):
     dependencies:
       typescript: 5.6.3
@@ -3388,6 +3446,15 @@ snapshots:
   word-wrap@1.2.5: {}
 
   wrappy@1.0.2: {}
+
+  y-protocols@1.0.6(yjs@13.6.33):
+    dependencies:
+      lib0: 0.2.119
+      yjs: 13.6.33
+
+  yjs@13.6.33:
+    dependencies:
+      lib0: 0.2.119
 
   yocto-queue@0.1.0: {}
 

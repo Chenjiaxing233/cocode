@@ -7,16 +7,12 @@ import MonacoEditor, {
 import { shikiToMonaco } from '@shikijs/monaco';
 import { useEditorState, useEditorDispatch } from '../stores/editorStore';
 import { getHighlighter, SHIKI_THEMES } from '../services/highlighter';
-import {
-  writeFile,
-  getRootHandle,
-  writeSingleFile,
-  readFile,
-  checkFileModified,
-  getFileLastModified,
-  getSingleFileLastModified,
-} from '../services/fs';
+import { readFile, checkFileModified } from '../services/fs';
+import { scheduleSave, isCollabFile } from '../services/autosave';
+import { bindEditor } from '../services/collab';
+import { collabKeyOf, useCollabSnapshot } from '../hooks/useCollab';
 import '../styles/editor.css';
+import '../styles/collab.css';
 
 const handleBeforeMount: BeforeMount = (monaco) => {
   // TypeScript: enable JSX/TSX, disable semantic errors (no node_modules in browser)
@@ -58,10 +54,14 @@ const handleBeforeMount: BeforeMount = (monaco) => {
 export default function Editor() {
   const { files, activeFileId, theme, reveal } = useEditorState();
   const dispatch = useEditorDispatch();
-  const saveTimers = useRef(new Map<string, number>());
   const [shikiReady, setShikiReady] = useState(false);
   // Monaco 编辑器实例，用于搜索结果跳转定位
   const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
+  // 编辑器实例变化（切换文件会重新挂载）时触发协同重绑
+  const [editorInstance, setEditorInstance] = useState<
+    Parameters<OnMount>[0] | null
+  >(null);
+  const collab = useCollabSnapshot();
 
   // 初始化 Shiki 高亮引擎并接入 Monaco（VS Code 级 TextMate 高亮，含 Vue SFC）
   useEffect(() => {
@@ -115,9 +115,23 @@ export default function Editor() {
 
   const handleMount: OnMount = (editor) => {
     editorRef.current = editor;
+    setEditorInstance(editor);
     // 文件刚被打开而挂载时，若存在待定位请求则立即执行
     applyReveal();
   };
+
+  // 协同中：把当前编辑器绑定到对应共享文本
+  const activeCollabKey = activeFile ? collabKeyOf(activeFile) : '';
+  useEffect(() => {
+    if (!collab.active || !editorInstance || !activeCollabKey) return;
+    return bindEditor(activeCollabKey, editorInstance);
+  }, [
+    collab.active,
+    collab.room,
+    collab.filesVersion,
+    editorInstance,
+    activeCollabKey,
+  ]);
 
   // 检测文件外部修改
   useEffect(() => {
@@ -174,69 +188,12 @@ export default function Editor() {
 
   const handleChange = (value: string | undefined) => {
     const content = value ?? '';
-    const filePath = activeFile.path;
-
     dispatch({
       type: 'UPDATE_FILE_CONTENT',
       payload: { id: activeFile.id, content },
     });
-
-    // Auto-save to disk with debounce
-    const isSingleFile = activeFile.id.startsWith('__single__');
-    if (isSingleFile || (getRootHandle() && filePath)) {
-      const prev = saveTimers.current.get(activeFile.id);
-      if (prev) clearTimeout(prev);
-      saveTimers.current.set(
-        activeFile.id,
-        window.setTimeout(async () => {
-          try {
-            if (isSingleFile) {
-              await writeSingleFile(activeFile.name, content);
-            } else {
-              await writeFile(filePath, content);
-            }
-
-            let lastModified: number | undefined;
-            try {
-              lastModified = isSingleFile
-                ? await getSingleFileLastModified(activeFile.name)
-                : await getFileLastModified(filePath);
-            } catch (metadataError) {
-              console.error(
-                'Failed to read saved file metadata:',
-                metadataError
-              );
-            }
-
-            dispatch({
-              type: 'MARK_FILE_SAVED',
-              payload: {
-                id: activeFile.id,
-                content,
-                lastModified,
-              },
-            });
-            dispatch({
-              type: 'SHOW_TOAST',
-              payload: {
-                message: '文件已自动保存',
-                type: 'success',
-              },
-            });
-          } catch (err) {
-            console.error('Auto-save failed:', err);
-            dispatch({
-              type: 'SHOW_TOAST',
-              payload: {
-                message: `自动保存失败: ${err instanceof Error ? err.message : '未知错误'}`,
-                type: 'error',
-              },
-            });
-          }
-          saveTimers.current.delete(activeFile.id);
-        }, 500)
-      );
-    }
+    // 防抖自动保存到磁盘（协同访客文件跳过）
+    scheduleSave(activeFile, content, dispatch);
   };
 
   return (
@@ -244,7 +201,10 @@ export default function Editor() {
       <MonacoEditor
         key={activeFile.id}
         height="100%"
-        path={activeFile.path || activeFile.name}
+        path={
+          activeFile.path ||
+          (isCollabFile(activeFile.id) ? activeFile.id : activeFile.name)
+        }
         language={activeFile.language}
         theme={editorTheme}
         value={activeFile.content}

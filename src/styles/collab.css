@@ -1,0 +1,43 @@
+/* ── 协同：远端选区与光标（颜色由 collab.ts 按用户动态注入） ── */
+.yRemoteSelection {
+  background-color: rgba(250, 129, 0, 0.25);
+}
+
+.yRemoteSelectionHead {
+  position: absolute;
+  height: 100%;
+  box-sizing: border-box;
+  border-left: 2px solid orange;
+}
+
+/* 光标上方的昵称标签 */
+.yRemoteSelectionHead::after {
+  position: absolute;
+  top: -1.3em;
+  left: -2px;
+  padding: 0 4px;
+  font-size: 11px;
+  line-height: 1.3em;
+  white-space: nowrap;
+  color: #fff;
+  border-radius: 3px 3px 3px 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Header 协同按钮 ── */
+.collab-btn.active {
+  border-color: var(--accent);
+  color: var(--text-strong);
+}
+
+.collab-users {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.collab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}

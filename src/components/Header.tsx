@@ -10,6 +10,7 @@ import {
   useEditorState,
 } from '../stores/editorStore';
 import { GithubIcon, NewFileIcon, NewFolderIcon } from './icons';
+import CollabButton from './CollabButton';
 
 /** GitHub 项目地址，点击跳转以便 star */
 const GITHUB_REPO_URL = 'https://github.com/Chenjiaxing233/jx-web-code';
@@ -86,6 +87,7 @@ export default function Header() {
             <span className="header-divider" />
           </>
         )}
+        <CollabButton />
         <button className="theme-btn" onClick={handleOpenFile}>
           Open File
         </button>

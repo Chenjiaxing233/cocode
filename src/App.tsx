@@ -11,6 +11,7 @@ import ActivityBar, { type SideView } from './components/ActivityBar';
 import FileTabs from './components/FileTabs';
 import Editor from './components/Editor';
 import { Toast } from './components/Toast';
+import { useCollab } from './hooks/useCollab';
 import './styles/common.css';
 
 const MIN_SIDEBAR_WIDTH = 160;
@@ -22,6 +23,7 @@ function AppContent() {
   const [sidebarWidth, setSidebarWidth] = useState(220);
   const [sideView, setSideView] = useState<SideView>('explorer');
   const draggingRef = useRef(false);
+  useCollab();
 
   /** 开始拖动分隔条，实时调整侧边栏宽度 */
   const startResize = (event: MouseEvent) => {
