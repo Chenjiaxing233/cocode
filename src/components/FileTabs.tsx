@@ -17,6 +17,13 @@ export default function FileTabs() {
     const file = files.find((item) => item.id === fileId);
     if (!file || !file.path) return;
 
+    if (
+      dirtyFiles.has(fileId) &&
+      !window.confirm(`File "${file.name}" has unsaved changes. Reload it?`)
+    ) {
+      return;
+    }
+
     try {
       const { content, lastModified } = await readFile(file.path);
       dispatch({
@@ -86,6 +93,14 @@ export default function FileTabs() {
                 title="Close file"
                 onClick={(event) => {
                   event.stopPropagation();
+                  if (
+                    dirtyFiles.has(file.id) &&
+                    !window.confirm(
+                      `File "${file.name}" has unsaved changes. Close it?`
+                    )
+                  ) {
+                    return;
+                  }
                   dispatch({ type: 'REMOVE_FILE', payload: file.id });
                 }}
               >

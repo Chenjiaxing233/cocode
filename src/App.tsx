@@ -64,6 +64,18 @@ function AppContent() {
       if (key === 'w' && (mod || event.altKey)) {
         if (state.activeFileId) {
           event.preventDefault();
+          const activeFile = state.files.find(
+            (file) => file.id === state.activeFileId
+          );
+          if (
+            activeFile &&
+            state.dirtyFiles.has(activeFile.id) &&
+            !window.confirm(
+              `File "${activeFile.name}" has unsaved changes. Close it?`
+            )
+          ) {
+            return;
+          }
           dispatch({ type: 'REMOVE_FILE', payload: state.activeFileId });
         }
         return;
@@ -94,6 +106,18 @@ function AppContent() {
     window.addEventListener('keydown', onKeyDown, true);
     return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [state.activeFileId, state.recentlyClosed, dispatch]);
+
+  // 页面刷新、关闭或跳转前保护尚未保存的编辑内容。
+  useEffect(() => {
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (state.dirtyFiles.size === 0) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [state.dirtyFiles]);
 
   return (
     <div

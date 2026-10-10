@@ -136,7 +136,13 @@ export default function Editor() {
   // 检测文件外部修改
   useEffect(() => {
     const checkExternalChanges = async () => {
-      if (!activeFile || !activeFile.path || !activeFile.lastModified) return;
+      if (
+        !activeFile ||
+        !activeFile.path ||
+        activeFile.lastModified === undefined
+      ) {
+        return;
+      }
 
       try {
         const isModified = await checkFileModified(

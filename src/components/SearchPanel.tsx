@@ -68,7 +68,7 @@ const MatchLine = ({ match }: { match: SearchMatch }) => {
  * 行内高亮跳转、单条/文件级/全局替换，以及搜索历史（↑↓ 浏览）。
  */
 export default function SearchPanel({ width }: { width: number }) {
-  const { files } = useEditorState();
+  const { files, dirtyFiles } = useEditorState();
   const dispatch = useEditorDispatch();
 
   const [query, setQuery] = useState('');
@@ -234,6 +234,21 @@ export default function SearchPanel({ width }: { width: number }) {
     }
   };
 
+  /** 防止磁盘搜索替换覆盖编辑器中尚未保存的内容。 */
+  const canReplacePath = (path: string) => {
+    const file = files.find((item) => item.id === path);
+    if (!file || !dirtyFiles.has(file.id)) return true;
+
+    dispatch({
+      type: 'SHOW_TOAST',
+      payload: {
+        message: `File "${file.name}" has unsaved changes. Save it before replacing.`,
+        type: 'warning',
+      },
+    });
+    return false;
+  };
+
   /** 点击命中：确保文件已打开，再跳转到对应行列 */
   const openMatch = async (match: SearchMatch) => {
     const existing = files.find((file) => file.id === match.path);
@@ -280,6 +295,7 @@ export default function SearchPanel({ width }: { width: number }) {
 
   /** 替换单条命中 */
   const replaceOne = async (match: SearchMatch) => {
+    if (!canReplacePath(match.path)) return;
     try {
       const res = await replaceMatchInFile(match, query, replaceValue, options);
       syncOpenFile(match.path, res.content, res.lastModified);
@@ -301,6 +317,7 @@ export default function SearchPanel({ width }: { width: number }) {
 
   /** 替换某个文件内的全部命中 */
   const replaceFile = async (path: string) => {
+    if (!canReplacePath(path)) return;
     try {
       const res = await replaceAllInFile(path, query, replaceValue, options);
       syncOpenFile(path, res.content, res.lastModified);
@@ -325,6 +342,7 @@ export default function SearchPanel({ width }: { width: number }) {
     const paths = [...new Set(results.map((match) => match.path))];
     let total = 0;
     for (const path of paths) {
+      if (!canReplacePath(path)) continue;
       try {
         const res = await replaceAllInFile(path, query, replaceValue, options);
         total += res.count;

@@ -15,11 +15,28 @@ export { MAX_SEARCH_RESULTS } from './searchCore';
 let rootHandle: FileSystemDirectoryHandle | null = null;
 const singleFileHandles = new Map<string, FileSystemFileHandle>();
 
+/** 检查当前浏览器是否支持本地文件访问能力。 */
+function assertFileSystemAccessSupport(
+  operation: 'directory' | 'file'
+): void {
+  const supported =
+    operation === 'directory'
+      ? typeof window.showDirectoryPicker === 'function'
+      : typeof window.showOpenFilePicker === 'function';
+
+  if (!supported) {
+    throw new Error(
+      'This browser does not support the File System Access API. Please use Chrome or Edge.'
+    );
+  }
+}
+
 export function getRootHandle(): FileSystemDirectoryHandle | null {
   return rootHandle;
 }
 
 export async function openDirectory(): Promise<FileSystemDirectoryHandle> {
+  assertFileSystemAccessSupport('directory');
   const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
   rootHandle = handle;
   return handle;
@@ -165,6 +182,7 @@ export async function openSingleFile(): Promise<{
   content: string;
   lastModified: number;
 }> {
+  assertFileSystemAccessSupport('file');
   const [fileHandle] = await window.showOpenFilePicker({ multiple: false });
   const file = await fileHandle.getFile();
   const content = await file.text();
@@ -225,7 +243,9 @@ export async function checkFileModified(
     const dirHandle = await navigateToDir(dirPath);
     const fileHandle = await dirHandle.getFileHandle(fileName);
     const file = await fileHandle.getFile();
-    return file.lastModified > lastKnownModified;
+    // 文件系统时间戳可能因为外部工具写回、时钟调整或精度差异而变小，
+    // 只要时间戳发生变化就需要交给用户决定是否重新加载。
+    return file.lastModified !== lastKnownModified;
   } catch (error) {
     return false;
   }

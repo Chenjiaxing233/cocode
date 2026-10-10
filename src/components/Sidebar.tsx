@@ -379,7 +379,8 @@ function TreeNodeItem({
 }
 
 export default function Sidebar({ width }: { width: number }) {
-  const { tree, files, activeFileId, createRequest } = useEditorState();
+  const { tree, files, dirtyFiles, activeFileId, createRequest } =
+    useEditorState();
   const dispatch = useEditorDispatch();
   const treeRef = useRef<FileTreeNode[]>(tree);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -586,17 +587,32 @@ export default function Sidebar({ width }: { width: number }) {
   };
 
   const performDelete = async (node: FileTreeNode) => {
+    const filesToClose =
+      node.type === 'file'
+        ? files.filter((file) => file.id === node.path)
+        : files.filter(
+            (file) =>
+              file.path === node.path || file.path.startsWith(`${node.path}/`)
+          );
+    const dirtyFilesToClose = filesToClose.filter((file) =>
+      dirtyFiles.has(file.id)
+    );
+
+    if (
+      dirtyFilesToClose.length > 0 &&
+      !window.confirm(
+        `${dirtyFilesToClose.length} open file(s) have unsaved changes. Delete anyway?`
+      )
+    ) {
+      return;
+    }
+
     try {
       await deleteFile(node.path);
 
       if (node.type === 'file') {
         dispatch({ type: 'REMOVE_FILE', payload: node.path });
       } else {
-        const filesToClose = files.filter(
-          (file) =>
-            file.path === node.path || file.path.startsWith(`${node.path}/`)
-        );
-
         filesToClose.forEach((file) => {
           dispatch({ type: 'REMOVE_FILE', payload: file.id });
         });
