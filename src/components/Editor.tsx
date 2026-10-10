@@ -115,6 +115,26 @@ export default function Editor() {
 
   const handleMount: OnMount = (editor) => {
     editorRef.current = editor;
+    /** 将 Monaco 内置编辑命令暴露到编辑器上下文菜单。 */
+    editor.addAction({
+      id: 'app.formatDocument',
+      label: 'Format Document',
+      contextMenuGroupId: '1_modification',
+      run: (instance) => instance.getAction('editor.action.formatDocument')?.run(),
+    });
+    editor.addAction({
+      id: 'app.formatSelection',
+      label: 'Format Selection',
+      contextMenuGroupId: '1_modification',
+      run: (instance) =>
+        instance.getAction('editor.action.formatSelection')?.run(),
+    });
+    editor.addAction({
+      id: 'app.toggleLineComment',
+      label: 'Toggle Line Comment',
+      contextMenuGroupId: '1_modification',
+      run: (instance) => instance.getAction('editor.action.commentLine')?.run(),
+    });
     setEditorInstance(editor);
     // 文件刚被打开而挂载时，若存在待定位请求则立即执行
     applyReveal();
@@ -223,6 +243,21 @@ export default function Editor() {
         options={{
           fontSize: 14,
           minimap: { enabled: true },
+          folding: true,
+          foldingStrategy: 'auto',
+          showFoldingControls: 'always',
+          foldingHighlight: true,
+          unfoldOnClickAfterEndOfLine: true,
+          formatOnType: true,
+          formatOnPaste: true,
+          parameterHints: { enabled: true },
+          autoClosingBrackets: 'always',
+          autoClosingQuotes: 'always',
+          bracketPairColorization: { enabled: true },
+          guides: {
+            indentation: true,
+            bracketPairs: true,
+          },
           scrollBeyondLastLine: false,
           automaticLayout: true,
           tabSize: 4,
