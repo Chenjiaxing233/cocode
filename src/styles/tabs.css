@@ -9,6 +9,23 @@
   flex-shrink: 0;
 }
 
+.tab-preview-action {
+  width: 34px;
+  height: 34px;
+  margin-left: auto;
+  flex: 0 0 34px;
+  border: 0;
+  border-left: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--bg-tabs);
+  cursor: pointer;
+}
+
+.tab-preview-action:hover {
+  color: var(--text-strong);
+  background: var(--hover);
+}
+
 .tab {
   display: flex;
   align-items: center;

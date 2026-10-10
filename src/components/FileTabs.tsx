@@ -2,10 +2,10 @@ import type { MouseEvent } from 'react';
 import { readFile } from '../services/fs';
 import { useEditorDispatch, useEditorState } from '../stores/editorStore';
 import { FileIcon } from './FileIcon';
-import { CloseIcon, RefreshIcon } from './icons';
+import { CloseIcon, PreviewIcon, RefreshIcon, RunIcon } from './icons';
 import '../styles/tabs.css';
 
-export default function FileTabs() {
+export default function FileTabs({ onPreview }: { onPreview: () => void }) {
   const { files, activeFileId, dirtyFiles } = useEditorState();
   const dispatch = useEditorDispatch();
 
@@ -110,6 +110,23 @@ export default function FileTabs() {
           </div>
         );
       })}
+      {(() => {
+        const activeFile = files.find((file) => file.id === activeFileId);
+        if (!activeFile) return null;
+        const isMarkdown = /\.(md|markdown|mdown|mkdn)$/i.test(activeFile.name);
+        const isRunnable = /\.(js|jsx|ts|tsx|mjs|cjs)$/i.test(activeFile.name);
+        if (!isMarkdown && !isRunnable) return null;
+        return (
+          <button
+            className="tab-preview-action"
+            onClick={onPreview}
+            title={isMarkdown ? '预览当前 Markdown 文件' : '执行当前 JS/TS 文件'}
+            aria-label={isMarkdown ? '预览当前 Markdown 文件' : '执行当前 JS/TS 文件'}
+          >
+            {isMarkdown ? <PreviewIcon size={16} /> : <RunIcon size={16} />}
+          </button>
+        );
+      })()}
     </div>
   );
 }

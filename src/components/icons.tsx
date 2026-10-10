@@ -51,6 +51,14 @@ export const GithubIcon = (props: IconProps) => (
   <Codicon name="github" {...props} />
 );
 
+/** 执行当前文件 */
+export const RunIcon = (props: IconProps) => <Codicon name="play" {...props} />;
+
+/** 预览当前文件 */
+export const PreviewIcon = (props: IconProps) => (
+  <Codicon name="preview" {...props} />
+);
+
 /** 资源管理器（活动栏） */
 export const FilesIcon = (props: IconProps) => (
   <Codicon name="files" {...props} />

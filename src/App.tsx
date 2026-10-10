@@ -10,9 +10,11 @@ import SearchPanel from './components/SearchPanel';
 import ActivityBar, { type SideView } from './components/ActivityBar';
 import FileTabs from './components/FileTabs';
 import Editor from './components/Editor';
+import Preview from './components/Preview';
 import { Toast } from './components/Toast';
 import { useCollab } from './hooks/useCollab';
 import './styles/common.css';
+import './styles/preview.css';
 
 const MIN_SIDEBAR_WIDTH = 160;
 const MAX_SIDEBAR_WIDTH = 480;
@@ -22,7 +24,10 @@ function AppContent() {
   const dispatch = useEditorDispatch();
   const [sidebarWidth, setSidebarWidth] = useState(220);
   const [sideView, setSideView] = useState<SideView>('explorer');
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewWidth, setPreviewWidth] = useState(420);
   const draggingRef = useRef(false);
+  const previewDraggingRef = useRef(false);
   useCollab();
 
   /** 开始拖动分隔条，实时调整侧边栏宽度 */
@@ -50,6 +55,28 @@ function AppContent() {
       window.removeEventListener('mouseup', onUp);
     };
 
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  /** 开始拖动预览面板分隔条。 */
+  const startPreviewResize = (event: MouseEvent) => {
+    event.preventDefault();
+    previewDraggingRef.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (ev: globalThis.MouseEvent) => {
+      if (!previewDraggingRef.current) return;
+      setPreviewWidth(Math.min(720, Math.max(280, window.innerWidth - ev.clientX)));
+    };
+    const onUp = () => {
+      previewDraggingRef.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
   };
@@ -139,9 +166,20 @@ function AppContent() {
           aria-orientation="vertical"
         />
         <div className="editor-panel">
-          <FileTabs />
+          <FileTabs onPreview={() => setPreviewOpen((open) => !open)} />
           <Editor />
         </div>
+        {previewOpen && (
+          <>
+            <div
+              className="preview-resizer"
+              onMouseDown={startPreviewResize}
+              role="separator"
+              aria-orientation="vertical"
+            />
+            <Preview width={previewWidth} onClose={() => setPreviewOpen(false)} />
+          </>
+        )}
       </div>
       {state.toast && (
         <Toast

@@ -23,6 +23,8 @@
     "@monaco-editor/react": "^4.6.0",
     "@shikijs/monaco": "^4.3.0",
     "@vscode/codicons": "^0.0.45",
+    "dompurify": "^3.4.16",
+    "marked": "^18.1.0",
     "monaco-editor": "^0.45.0",
     "playwright": "^1.58.2",
     "react": "^18.3.1",
