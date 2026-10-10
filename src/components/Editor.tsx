@@ -9,7 +9,7 @@ import { useEditorState, useEditorDispatch } from '../stores/editorStore';
 import { getHighlighter, SHIKI_THEMES } from '../services/highlighter';
 import { readFile, checkFileModified } from '../services/fs';
 import { scheduleSave, isCollabFile } from '../services/autosave';
-import { bindEditor } from '../services/collab';
+import { bindEditor, isReadOnlyGuest, isShared } from '../services/collab';
 import { collabKeyOf, useCollabSnapshot } from '../hooks/useCollab';
 import '../styles/editor.css';
 import '../styles/collab.css';
@@ -186,6 +186,9 @@ export default function Editor() {
   if (!activeFile)
     return <div className="editor-placeholder">No file open</div>;
 
+  // 只读访客查看共享文件时禁止编辑
+  const readOnly = isReadOnlyGuest(collab) && isShared(activeCollabKey);
+
   const handleChange = (value: string | undefined) => {
     const content = value ?? '';
     dispatch({
@@ -218,6 +221,8 @@ export default function Editor() {
           automaticLayout: true,
           tabSize: 4,
           wordWrap: 'on',
+          readOnly,
+          readOnlyMessage: { value: '协同发起者已设置为只读' },
         }}
       />
     </div>

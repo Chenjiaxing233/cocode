@@ -51,16 +51,29 @@ export const useCollab = () => {
     if (!snap.active) seenKeys.current.clear();
   }, [snap.active]);
 
-  // 本地打开的文件自动共享到房间
+  // 访客获知权限后提示
+  useEffect(() => {
+    if (snap.role !== 'guest' || !snap.mode) return;
+    dispatch({
+      type: 'SHOW_TOAST',
+      payload:
+        snap.mode === 'readonly'
+          ? { message: '已连接：对方设置为只读，你只能查看', type: 'info' }
+          : { message: '已连接：你可以与对方一起编辑', type: 'success' },
+    });
+  }, [snap.role, snap.mode, dispatch]);
+
+  // 本地打开的文件自动共享到房间（访客需等发起者声明为可编辑后才共享）
   useEffect(() => {
     if (!snap.active) return;
+    if (snap.role === 'guest' && snap.mode !== 'edit') return;
     files
       .filter((f) => !isCollabFile(f.id) && !isShared(f.id))
       .forEach((f) => {
         seenKeys.current.add(f.id);
         shareFile(f.id, { name: f.name, language: f.language }, f.content);
       });
-  }, [snap.active, files]);
+  }, [snap.active, snap.role, snap.mode, files]);
 
   // 对方共享的新文件 → 以 __collab__ 标签打开
   useEffect(() => {

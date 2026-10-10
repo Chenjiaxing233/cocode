@@ -33,6 +33,12 @@ export interface SharedFileMeta {
   language: string;
 }
 
+/** 协同权限：对方可编辑 / 只读 */
+export type CollabMode = 'edit' | 'readonly';
+
+/** 本端角色：发起者（持有本地文件） / 访客 */
+export type CollabRole = 'host' | 'guest' | '';
+
 export interface CollabUser {
   clientID: number;
   name: string;
@@ -47,6 +53,9 @@ export interface CollabSnapshot {
   users: CollabUser[];
   /** 共享文件列表变更版本号，供组件感知 */
   filesVersion: number;
+  role: CollabRole;
+  /** 权限模式；访客在收到发起者声明前为 null */
+  mode: CollabMode | null;
 }
 
 interface Session {
@@ -55,7 +64,12 @@ interface Session {
   room: Room;
   files: Y.Map<SharedFileMeta>;
   peerClients: Map<string, number>;
+  /** 访客侧记录发起者的 peerId，只读模式下只接受其文档更新 */
+  hostPeerId: string | null;
 }
+
+/** 握手消息：发起者附带权限模式，访客为 null */
+type Hello = { clientID: number; mode: CollabMode | null };
 
 const EMPTY: CollabSnapshot = {
   active: false,
@@ -64,6 +78,8 @@ const EMPTY: CollabSnapshot = {
   peers: 0,
   users: [],
   filesVersion: 0,
+  role: '',
+  mode: null,
 };
 
 let session: Session | null = null;
@@ -152,12 +168,33 @@ export const parseCollabHash = () => {
   return m ? { room: m[1], key: m[2] } : null;
 };
 
+/** 本端是否为只读访客 */
+export const isReadOnlyGuest = (s: CollabSnapshot = snapshot) =>
+  s.role === 'guest' && s.mode === 'readonly';
+
 /**
- * 加入（或新建）协同房间。
- * @param room 房间号，缺省时新建
- * @param key 口令，缺省时新建
+ * 是否接受某个 peer 的文档更新。
+ * 只读模式下：发起者拒收所有访客更新；访客只接收发起者的更新。
  */
-export const startSession = (room = randomId(8), key = randomId(16)) => {
+const acceptsDocFrom = (s: Session, peerId: string) => {
+  if (snapshot.mode !== 'readonly') return true;
+  return snapshot.role === 'guest' && peerId === s.hostPeerId;
+};
+
+/**
+ * 新建协同房间（本端为发起者）。
+ * @param mode 对方权限
+ */
+export const hostSession = (mode: CollabMode) =>
+  startSession(randomId(8), randomId(16), mode);
+
+/**
+ * 加入协同房间；传入 mode 表示以发起者身份创建，否则为访客。
+ * @param room 房间号
+ * @param key 口令
+ * @param mode 发起者设定的对方权限
+ */
+export const startSession = (room: string, key: string, mode?: CollabMode) => {
   if (session) {
     if (snapshot.room === room) return;
     stopSession();
@@ -168,11 +205,19 @@ export const startSession = (room = randomId(8), key = randomId(16)) => {
   const trRoom = joinRoom({ appId: APP_ID, password: key }, room);
   const files = ydoc.getMap<SharedFileMeta>('files');
   const peerClients = new Map<string, number>();
-  session = { ydoc, awareness, room: trRoom, files, peerClients };
+  const s: Session = {
+    ydoc,
+    awareness,
+    room: trRoom,
+    files,
+    peerClients,
+    hostPeerId: null,
+  };
+  session = s;
 
   const docAction = trRoom.makeAction<Uint8Array>('doc');
   const awAction = trRoom.makeAction<Uint8Array>('aw');
-  const helloAction = trRoom.makeAction<number>('hello');
+  const helloAction = trRoom.makeAction<Hello>('hello');
 
   // 本地变更 → 广播
   ydoc.on('update', (update: Uint8Array, origin: unknown) => {
@@ -198,21 +243,31 @@ export const startSession = (room = randomId(8), key = randomId(16)) => {
   files.observe(() => setSnapshot({ filesVersion: snapshot.filesVersion + 1 }));
 
   // 远端 → 本地
-  docAction.onMessage = (data) =>
+  docAction.onMessage = (data, { peerId }) => {
+    if (!acceptsDocFrom(s, peerId)) return;
     Y.applyUpdate(ydoc, new Uint8Array(data as unknown as ArrayBuffer), REMOTE);
+  };
   awAction.onMessage = (data) =>
     applyAwarenessUpdate(
       awareness,
       new Uint8Array(data as unknown as ArrayBuffer),
       REMOTE
     );
-  helloAction.onMessage = (clientID, { peerId }) => {
+  helloAction.onMessage = ({ clientID, mode: hostMode }, { peerId }) => {
     peerClients.set(peerId, clientID);
+    // 访客收到发起者声明：记录发起者并同步权限模式
+    if (hostMode && snapshot.role === 'guest') {
+      s.hostPeerId = peerId;
+      setSnapshot({ mode: hostMode });
+    }
   };
 
   // 新成员加入：互发全量文档与在场信息（CRDT 自动合并）
   trRoom.onPeerJoin = (peerId) => {
-    helloAction.send(ydoc.clientID, { target: peerId });
+    helloAction.send(
+      { clientID: ydoc.clientID, mode: mode ?? null },
+      { target: peerId }
+    );
     docAction.send(Y.encodeStateAsUpdate(ydoc), { target: peerId });
     awAction.send(
       encodeAwarenessUpdate(awareness, [...awareness.getStates().keys()]),
@@ -229,7 +284,15 @@ export const startSession = (room = randomId(8), key = randomId(16)) => {
   };
 
   awareness.setLocalStateField('user', localUser());
-  setSnapshot({ ...EMPTY, active: true, room, key, filesVersion: 1 });
+  setSnapshot({
+    ...EMPTY,
+    active: true,
+    room,
+    key,
+    filesVersion: 1,
+    role: mode ? 'host' : 'guest',
+    mode: mode ?? null,
+  });
   refreshUsers();
 };
 
@@ -409,7 +472,7 @@ export const bindEditor = (key: string, ed: CodeEditor) => {
 
   // 本地 Monaco 变更 → Yjs（按偏移倒序应用，保证位置正确）
   const contentSub = model.onDidChangeContent((e) => {
-    if (muted) return;
+    if (muted || isReadOnlyGuest()) return;
     s.ydoc.transact(() => {
       [...e.changes]
         .sort((x, y) => y.rangeOffset - x.rangeOffset)

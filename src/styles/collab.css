@@ -41,3 +41,66 @@
   height: 8px;
   border-radius: 50%;
 }
+
+.collab-mode-tag {
+  margin-left: 6px;
+  padding: 0 5px;
+  font-size: 11px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+
+/* ── 权限选择菜单 ── */
+.collab-wrap {
+  position: relative;
+}
+
+.collab-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 100;
+  min-width: 200px;
+  padding: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.collab-menu-title {
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.collab-menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.collab-menu-item:hover,
+.collab-menu-item:focus-visible {
+  background: var(--hover);
+  outline: none;
+}
+
+.collab-menu-label {
+  font-size: 13px;
+  color: var(--text-strong);
+}
+
+.collab-menu-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+}
