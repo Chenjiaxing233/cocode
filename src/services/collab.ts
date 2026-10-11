@@ -45,6 +45,18 @@ export interface CollabUser {
   color: string;
 }
 
+/** 协同房间中的聊天消息。 */
+export interface CollabChatMessage {
+  id: string;
+  senderClientID: number;
+  senderName: string;
+  senderColor: string;
+  text: string;
+  fileId?: string;
+  fileName?: string;
+  line?: number;
+}
+
 export interface CollabSnapshot {
   active: boolean;
   room: string;
@@ -66,6 +78,12 @@ interface Session {
   peerClients: Map<string, number>;
   /** 访客侧记录发起者的 peerId，只读模式下只接受其文档更新 */
   hostPeerId: string | null;
+  chatAction: ChatAction;
+}
+
+interface ChatAction {
+  send: (message: CollabChatMessage) => void;
+  onMessage: (message: CollabChatMessage) => void;
 }
 
 /** 握手消息：发起者附带权限模式，访客为 null */
@@ -85,6 +103,7 @@ const EMPTY: CollabSnapshot = {
 let session: Session | null = null;
 let snapshot: CollabSnapshot = EMPTY;
 const listeners = new Set<() => void>();
+const chatListeners = new Set<(message: CollabChatMessage) => void>();
 
 /** 更新快照并通知订阅者 */
 const setSnapshot = (patch: Partial<CollabSnapshot>) => {
@@ -97,6 +116,17 @@ export const subscribe = (listener: () => void) => {
   listeners.add(listener);
   return () => listeners.delete(listener);
 };
+
+/** 订阅当前协同房间的聊天消息。 */
+export const subscribeChat = (
+  listener: (message: CollabChatMessage) => void
+) => {
+  chatListeners.add(listener);
+  return () => chatListeners.delete(listener);
+};
+
+/** 获取当前客户端在 awareness 中的唯一编号。 */
+export const getLocalClientID = () => session?.ydoc.clientID;
 
 /** useSyncExternalStore 快照入口 */
 export const getSnapshot = () => snapshot;
@@ -123,6 +153,29 @@ const localUser = () => {
   const name = saved || `用户-${randomId(2)}`;
   if (!saved) localStorage.setItem('collab-name', name);
   return { name, color: COLORS[Math.floor(Math.random() * COLORS.length)] };
+};
+
+/** 向当前协同房间广播聊天消息。 */
+export const sendChatMessage = (
+  message: Omit<
+    CollabChatMessage,
+    'id' | 'senderClientID' | 'senderName' | 'senderColor'
+  >
+) => {
+  if (!session || !snapshot.active) return false;
+  const user = session.awareness.getLocalState()?.user as
+    | { name?: unknown; color?: unknown }
+    | undefined;
+  const fullMessage: CollabChatMessage = {
+    ...message,
+    id: `${session.ydoc.clientID}-${Date.now()}-${randomId(3)}`,
+    senderClientID: session.ydoc.clientID,
+    senderName: safeName(user?.name),
+    senderColor: safeColor(user?.color),
+  };
+  session.chatAction.send(fullMessage);
+  chatListeners.forEach((listener) => listener(fullMessage));
+  return true;
 };
 
 const textOf = (s: Session, key: string) => s.ydoc.getText(`file:${key}`);
@@ -212,12 +265,17 @@ export const startSession = (room: string, key: string, mode?: CollabMode) => {
     files,
     peerClients,
     hostPeerId: null,
+    chatAction: trRoom.makeAction('chat') as unknown as ChatAction,
   };
   session = s;
 
   const docAction = trRoom.makeAction<Uint8Array>('doc');
   const awAction = trRoom.makeAction<Uint8Array>('aw');
   const helloAction = trRoom.makeAction<Hello>('hello');
+  s.chatAction.onMessage = (message) => {
+    if (!message || typeof message.text !== 'string') return;
+    chatListeners.forEach((listener) => listener(message));
+  };
 
   // 本地变更 → 广播
   ydoc.on('update', (update: Uint8Array, origin: unknown) => {
