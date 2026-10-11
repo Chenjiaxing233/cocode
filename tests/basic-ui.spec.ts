@@ -5,7 +5,7 @@ test.describe('基础 UI 测试', () => {
     await page.goto('/');
 
     // 检查标题
-    await expect(page.locator('.logo')).toHaveText('Code Editor');
+    await expect(page.locator('.logo')).toHaveText('CoCode');
 
     // 检查主题切换按钮
     const themeBtn = page.locator('.theme-btn').filter({ hasText: 'Dark' });

@@ -13,7 +13,7 @@ import { GithubIcon, NewFileIcon, NewFolderIcon } from './icons';
 import CollabButton from './CollabButton';
 import '../styles/header.css';
 
-const GITHUB_REPO_URL = 'https://github.com/Chenjiaxing233/jx-web-code';
+const GITHUB_REPO_URL = 'https://github.com/Chenjiaxing233/cocode';
 
 /** 应用顶部工具栏。 */
 export default function Header() {
@@ -49,7 +49,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <span className="logo">Code Editor</span>
+        <span className="logo">CoCode</span>
       </div>
       <div className="header-right">
         {hasFolder && (

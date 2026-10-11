@@ -1,8 +1,8 @@
-# React Monaco Code Editor
+# CoCode
 
 一个运行在浏览器中的轻量级代码编辑器，支持本地文件编辑、工作区搜索和多人实时协同。
 
-在线体验：<https://chenjiaxing233.github.io/jx-web-code/>
+在线体验：<https://chenjiaxing233.github.io/cocode/>
 
 > 请使用 Chrome 或 Edge。首次打开编辑器需要联网加载编辑器资源。
 
