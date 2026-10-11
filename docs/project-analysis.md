@@ -20,18 +20,18 @@
 
 ## 2. 技术栈
 
-| 类别 | 技术 |
-| --- | --- |
-| 前端框架 | React 18 |
-| 类型系统 | TypeScript 5.6 |
-| 构建工具 | Vite |
-| 编辑器 | Monaco Editor |
-| 语法高亮 | Shiki |
-| 本地文件 | File System Access API |
-| 状态管理 | React Context + useReducer |
-| 协同编辑 | Yjs + Trystero + WebRTC |
-| 自动化测试 | Playwright |
-| 部署 | GitHub Pages + GitHub Actions |
+| 类别       | 技术                          |
+| ---------- | ----------------------------- |
+| 前端框架   | React 18                      |
+| 类型系统   | TypeScript 5.6                |
+| 构建工具   | Vite                          |
+| 编辑器     | Monaco Editor                 |
+| 语法高亮   | Shiki                         |
+| 本地文件   | File System Access API        |
+| 状态管理   | React Context + useReducer    |
+| 协同编辑   | Yjs + Trystero + WebRTC       |
+| 自动化测试 | Playwright                    |
+| 部署       | GitHub Pages + GitHub Actions |
 
 ## 3. 目录结构
 
@@ -236,6 +236,7 @@ pnpm test
 5. 高亮或语言服务器失败时降级到 Monaco 默认语言模式；LSP 不可用时保留基础编辑功能。
 
 最终推荐架构：Monaco + Shiki 负责高亮，JS/TS 和 Web 类语言优先使用 Monaco 内置服务，Python、Go、Rust、Java、C/C++ 等语言通过后端 LSP 网关接入。
+
 ## 10. 前端可实现功能范围
 
 ### 10.1 纯前端可实现

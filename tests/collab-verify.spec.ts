@@ -7,7 +7,13 @@ import { test, expect, type Page } from '@playwright/test';
  */
 
 /** 注入 File System Access API 模拟，使应用可“打开文件夹”（addInitScript 只支持单个参数） */
-const mockFs = ({ fileName, content }: { fileName: string; content: string }) => {
+const mockFs = ({
+  fileName,
+  content,
+}: {
+  fileName: string;
+  content: string;
+}) => {
   const store = new Map<string, { name: string; content: string }>();
   store.set(fileName, { name: fileName, content });
 
@@ -32,7 +38,8 @@ const mockFs = ({ fileName, content }: { fileName: string; content: string }) =>
       kind: 'directory',
       name: 'collab-folder',
       async *entries() {
-        for (const [name, data] of store.entries()) yield [name, handleOf(data)];
+        for (const [name, data] of store.entries())
+          yield [name, handleOf(data)];
       },
       async getFileHandle(name: string) {
         const data = store.get(name);
@@ -83,8 +90,14 @@ test('P2P 协同：开房、加入、文件共享与双向同步', async ({ brow
   });
   const ctxB = await browser.newContext();
 
-  await ctxA.addInitScript(mockFs, { fileName: 'alpha.js', content: 'const a = 1;\n' });
-  await ctxB.addInitScript(mockFs, { fileName: 'beta.js', content: 'const b = 2;\n' });
+  await ctxA.addInitScript(mockFs, {
+    fileName: 'alpha.js',
+    content: 'const a = 1;\n',
+  });
+  await ctxB.addInitScript(mockFs, {
+    fileName: 'beta.js',
+    content: 'const b = 2;\n',
+  });
 
   const pageA = await ctxA.newPage();
   const pageB = await ctxB.newPage();
@@ -169,7 +182,8 @@ test('P2P 协同：开房、加入、文件共享与双向同步', async ({ brow
 
   // --- 9. 远端光标/选区渲染 ---
   const hasRemoteCursor = await pageA.evaluate(
-    () => document.querySelectorAll('[class*="yRemoteSelectionHead-"]').length > 0
+    () =>
+      document.querySelectorAll('[class*="yRemoteSelectionHead-"]').length > 0
   );
   console.log(
     hasRemoteCursor
@@ -202,8 +216,14 @@ test('P2P 协同：只读模式下访客无法修改', async ({ browser }) => {
     permissions: ['clipboard-read', 'clipboard-write'],
   });
   const ctxB = await browser.newContext();
-  await ctxA.addInitScript(mockFs, { fileName: 'alpha.js', content: 'const a = 1;\n' });
-  await ctxB.addInitScript(mockFs, { fileName: 'beta.js', content: 'const b = 2;\n' });
+  await ctxA.addInitScript(mockFs, {
+    fileName: 'alpha.js',
+    content: 'const a = 1;\n',
+  });
+  await ctxB.addInitScript(mockFs, {
+    fileName: 'beta.js',
+    content: 'const b = 2;\n',
+  });
   const pageA = await ctxA.newPage();
   const pageB = await ctxB.newPage();
 

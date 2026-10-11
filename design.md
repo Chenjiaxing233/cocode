@@ -9,11 +9,11 @@
 
 ## 2. 方案选型
 
-| 能力 | 选型 | 说明 |
-| --- | --- | --- |
+| 能力         | 选型            | 说明                                                                 |
+| ------------ | --------------- | -------------------------------------------------------------------- |
 | 并发合并算法 | **Yjs（CRDT）** | 无冲突复制数据类型，去中心化，无需中央服务器做冲突转换，天然适配 P2P |
-| 编辑器绑定 | **y-monaco** | 将 Monaco 的 `ITextModel` 与 Yjs 的 `Y.Text` 双向绑定 |
-| 传输层 | **y-webrtc** | 浏览器间 WebRTC 直连同步，内置 awareness（在场/光标）与端到端加密 |
+| 编辑器绑定   | **y-monaco**    | 将 Monaco 的 `ITextModel` 与 Yjs 的 `Y.Text` 双向绑定                |
+| 传输层       | **y-webrtc**    | 浏览器间 WebRTC 直连同步，内置 awareness（在场/光标）与端到端加密    |
 
 为什么不是 OT（操作转换）：OT 通常依赖中央服务器串行化并转换操作，与"数据不过服务器"目标冲突；CRDT 可在纯 P2P 下收敛。
 
@@ -83,7 +83,11 @@ interface CollabSession {
 let session: CollabSession | null = null;
 
 /** 加入协同房间（房间名 + 口令即“密钥”，两人约定一致即可连上） */
-export const joinRoom = (room: string, password: string, user: { name: string; color: string }) => {
+export const joinRoom = (
+  room: string,
+  password: string,
+  user: { name: string; color: string }
+) => {
   const ydoc = new Y.Doc();
   const provider = new WebrtcProvider(room, ydoc, {
     password,
@@ -94,14 +98,22 @@ export const joinRoom = (room: string, password: string, user: { name: string; c
 };
 
 /** 将某个已打开文件的 Monaco model 绑定到 Yjs（切换/打开文件时调用） */
-export const bindModel = (path: string, editorInstance: editor.IStandaloneCodeEditor) => {
+export const bindModel = (
+  path: string,
+  editorInstance: editor.IStandaloneCodeEditor
+) => {
   if (!session) return;
   const model = editorInstance.getModel();
   if (!model || session.bindings.has(path)) return;
   const ytext = session.ydoc.getText(path);
   session.bindings.set(
     path,
-    new MonacoBinding(ytext, model, new Set([editorInstance]), session.provider.awareness)
+    new MonacoBinding(
+      ytext,
+      model,
+      new Set([editorInstance]),
+      session.provider.awareness
+    )
   );
 };
 
@@ -171,8 +183,6 @@ export const leaveRoom = () => {
 - 断开 A 网络 → A 离线编辑 → 恢复后与 B 合并无冲突。
 - 各端本地磁盘文件均被正确写回。
 
-
-
 ---
 
 # 实时预览设计文档（Web 内运行项目）
@@ -231,13 +241,19 @@ import { Sandpack } from '@codesandbox/sandpack-react';
 /** 将工作区文件转为 Sandpack files map */
 const toSandpackFiles = (files: { path: string; content: string }[]) =>
   Object.fromEntries(
-    files.map((f) => [f.path.startsWith('/') ? f.path : `/${f.path}`, { code: f.content }])
+    files.map((f) => [
+      f.path.startsWith('/') ? f.path : `/${f.path}`,
+      { code: f.content },
+    ])
   );
 
 <Sandpack
   template="react-ts"
   files={toSandpackFiles(openFiles)}
-  options={{ showConsole: true, editorHeight: 0 /* 用我们自己的 Monaco 编辑 */ }}
+  options={{
+    showConsole: true,
+    editorHeight: 0 /* 用我们自己的 Monaco 编辑 */,
+  }}
 />;
 ```
 
@@ -305,7 +321,10 @@ import { WebContainer, type FileSystemTree } from '@webcontainer/api';
 let wc: WebContainer | null = null;
 
 /** 启动 WebContainer 并跑起 dev server，返回预览 URL */
-export const startPreview = async (tree: FileSystemTree, onUrl: (url: string) => void) => {
+export const startPreview = async (
+  tree: FileSystemTree,
+  onUrl: (url: string) => void
+) => {
   wc = await WebContainer.boot();
   await wc.mount(tree);
 
@@ -317,7 +336,8 @@ export const startPreview = async (tree: FileSystemTree, onUrl: (url: string) =>
 };
 
 /** 编辑内容同步到容器内文件，触发 dev server HMR */
-export const syncFile = (path: string, content: string) => wc?.fs.writeFile(path, content);
+export const syncFile = (path: string, content: string) =>
+  wc?.fs.writeFile(path, content);
 ```
 
 ### 3.5 取舍
@@ -329,16 +349,16 @@ export const syncFile = (path: string, content: string) => wc?.fs.writeFile(path
 
 ## 4. 方案对比
 
-| 维度 | 方案 B（Sandpack） | 方案 C（WebContainer） |
-| --- | --- | --- |
-| 运行环境 | 浏览器内 bundler，非真实 Node | 浏览器内真实 Node（WASM） |
-| 多文件 / npm | 支持（CDN 解析） | 支持（真实 npm install） |
-| HMR | 部分模板 | 真实 dev server HMR |
-| 终端 / 任意脚本 | 否 | 是 |
-| 集成成本 | 低（现成组件） | 高 |
-| 托管要求 | 普通静态托管即可 | **必须 COOP/COEP 隔离头** |
-| 首次开销 | 中（拉依赖+打包） | 高（install+boot） |
-| 与本地构建一致性 | 有差异 | 高度一致 |
+| 维度             | 方案 B（Sandpack）            | 方案 C（WebContainer）    |
+| ---------------- | ----------------------------- | ------------------------- |
+| 运行环境         | 浏览器内 bundler，非真实 Node | 浏览器内真实 Node（WASM） |
+| 多文件 / npm     | 支持（CDN 解析）              | 支持（真实 npm install）  |
+| HMR              | 部分模板                      | 真实 dev server HMR       |
+| 终端 / 任意脚本  | 否                            | 是                        |
+| 集成成本         | 低（现成组件）                | 高                        |
+| 托管要求         | 普通静态托管即可              | **必须 COOP/COEP 隔离头** |
+| 首次开销         | 中（拉依赖+打包）             | 高（install+boot）        |
+| 与本地构建一致性 | 有差异                        | 高度一致                  |
 
 ## 5. 选型建议
 

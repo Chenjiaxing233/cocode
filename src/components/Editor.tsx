@@ -115,12 +115,20 @@ export default function Editor() {
 
   const handleMount: OnMount = (editor) => {
     editorRef.current = editor;
+    editor.onDidChangeCursorPosition((event) => {
+      window.dispatchEvent(
+        new CustomEvent('editor-cursor-line', {
+          detail: { line: event.position.lineNumber },
+        })
+      );
+    });
     /** 将 Monaco 内置编辑命令暴露到编辑器上下文菜单。 */
     editor.addAction({
       id: 'app.formatDocument',
       label: 'Format Document',
       contextMenuGroupId: '1_modification',
-      run: (instance) => instance.getAction('editor.action.formatDocument')?.run(),
+      run: (instance) =>
+        instance.getAction('editor.action.formatDocument')?.run(),
     });
     editor.addAction({
       id: 'app.formatSelection',

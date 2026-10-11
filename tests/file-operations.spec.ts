@@ -65,7 +65,7 @@ test.describe('文件操作集成测试', () => {
     await page.click('.tree-delete-btn:first-child');
 
     // 确认删除
-    page.on('dialog', dialog => dialog.accept());
+    page.on('dialog', (dialog) => dialog.accept());
 
     // 等待 Toast 提示
     await page.waitForSelector('.toast-success', { timeout: 3000 });

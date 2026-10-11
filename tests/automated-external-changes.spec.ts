@@ -17,7 +17,10 @@ test.describe('外部修改检测自动化测试', () => {
       mockFileSystem.set('test.txt', fileData);
 
       // 暴露一个函数用于模拟外部修改
-      (window as any).simulateExternalModification = (filename: string, newContent: string) => {
+      (window as any).simulateExternalModification = (
+        filename: string,
+        newContent: string
+      ) => {
         const data = mockFileSystem.get(filename);
         if (data) {
           data.content = newContent;
@@ -98,7 +101,10 @@ test.describe('外部修改检测自动化测试', () => {
 
     // 模拟外部修改文件
     await page.evaluate(() => {
-      (window as any).simulateExternalModification('test.txt', 'Modified by external editor');
+      (window as any).simulateExternalModification(
+        'test.txt',
+        'Modified by external editor'
+      );
     });
 
     // 设置对话框处理
@@ -203,7 +209,10 @@ test.describe('外部修改检测自动化测试', () => {
 
     // 模拟外部修改
     await page.evaluate(() => {
-      (window as any).simulateExternalModification('test.txt', 'External modification');
+      (window as any).simulateExternalModification(
+        'test.txt',
+        'External modification'
+      );
     });
 
     // 拒绝对话框（点击"取消"）

@@ -16,7 +16,12 @@ import {
   useEditorState,
 } from '../stores/editorStore';
 import { FileIcon } from './FileIcon';
-import { NewFileIcon, NewFolderIcon, TrashIcon, ChevronRightIcon } from './icons';
+import {
+  NewFileIcon,
+  NewFolderIcon,
+  TrashIcon,
+  ChevronRightIcon,
+} from './icons';
 import { ConfirmDialog } from './ConfirmDialog';
 import type { FileTreeNode } from '../types';
 import '../styles/sidebar.css';
@@ -237,10 +242,7 @@ function TreeNodeItem({
   onCreateSubmit: (name: string) => Promise<void> | void;
   onCreateCancel: () => void;
   onDelete: (node: FileTreeNode) => Promise<void> | void;
-  onContextMenu: (
-    event: MouseEvent,
-    node: FileTreeNode | null
-  ) => void;
+  onContextMenu: (event: MouseEvent, node: FileTreeNode | null) => void;
 }) {
   if (node.type === 'directory') {
     const isKnownEmptyDirectory =
@@ -687,10 +689,7 @@ export default function Sidebar({ width }: { width: number }) {
       : '';
   };
 
-  const openContextMenu = (
-    event: MouseEvent,
-    node: FileTreeNode | null
-  ) => {
+  const openContextMenu = (event: MouseEvent, node: FileTreeNode | null) => {
     event.preventDefault();
     event.stopPropagation();
     setMenu({ x: event.clientX, y: event.clientY, node });

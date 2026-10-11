@@ -92,12 +92,13 @@ tests/
 对于需要文件系统访问的测试，可以：
 
 1. **使用 Chrome DevTools Protocol (CDP)**：
+
    ```typescript
    // 示例：使用 CDP 授权文件系统访问
    const client = await page.context().newCDPSession(page);
    await client.send('Browser.grantPermissions', {
      permissions: ['fileSystem'],
-     origin: 'http://localhost:5173'
+     origin: 'http://localhost:5173',
    });
    ```
 
@@ -177,6 +178,7 @@ pnpm run test:ui
 ```
 
 UI 模式提供：
+
 - 可视化测试运行
 - 时间旅行调试
 - 查看测试步骤
@@ -189,6 +191,7 @@ pnpm run test:debug
 ```
 
 调试模式会：
+
 - 打开浏览器
 - 暂停在每个测试步骤
 - 允许你检查页面状态

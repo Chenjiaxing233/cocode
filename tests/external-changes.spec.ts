@@ -32,7 +32,10 @@ test.describe('文件外部修改检测', () => {
         try {
           const rules = Array.from(sheet.cssRules || []);
           for (const rule of rules) {
-            if (rule instanceof CSSStyleRule && rule.selectorText?.includes('tab-reload')) {
+            if (
+              rule instanceof CSSStyleRule &&
+              rule.selectorText?.includes('tab-reload')
+            ) {
               hasReloadStyle = true;
               break;
             }
@@ -62,7 +65,10 @@ test.describe('Toast 通知功能', () => {
         try {
           const rules = Array.from(sheet.cssRules || []);
           for (const rule of rules) {
-            if (rule instanceof CSSStyleRule && rule.selectorText?.includes('toast')) {
+            if (
+              rule instanceof CSSStyleRule &&
+              rule.selectorText?.includes('toast')
+            ) {
               hasStyles = true;
               break;
             }
@@ -89,7 +95,7 @@ test.describe('CSS 模块化测试', () => {
     for (const module of cssModules) {
       const hasModule = await page.evaluate((moduleName) => {
         const styleSheets = Array.from(document.styleSheets);
-        return styleSheets.some(sheet => {
+        return styleSheets.some((sheet) => {
           try {
             return sheet.href?.includes(`${moduleName}.css`);
           } catch (e) {

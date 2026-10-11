@@ -146,12 +146,17 @@ class MockFileSystemDirectoryHandle implements FileSystemDirectoryHandle {
     return new MockFileSystemDirectoryHandle(name, dirData);
   }
 
-  async removeEntry(name: string, options?: { recursive?: boolean }): Promise<void> {
+  async removeEntry(
+    name: string,
+    options?: { recursive?: boolean }
+  ): Promise<void> {
     if (!this.data.children) return;
     this.data.children.delete(name);
   }
 
-  async resolve(possibleDescendant: FileSystemHandle): Promise<string[] | null> {
+  async resolve(
+    possibleDescendant: FileSystemHandle
+  ): Promise<string[] | null> {
     return null;
   }
 
@@ -203,7 +208,8 @@ export function createMockFileSystem(): MockFileSystemDirectoryHandle {
               'App.tsx',
               {
                 name: 'App.tsx',
-                content: 'export default function App() { return <div>Hello</div>; }',
+                content:
+                  'export default function App() { return <div>Hello</div>; }',
                 lastModified: Date.now(),
                 type: 'file',
               },
@@ -262,8 +268,11 @@ export async function injectMockFileSystemAPI(page: any) {
  * 设置 Mock 文件系统数据
  */
 export async function setMockFileSystem(page: any, mockHandle: any) {
-  await page.evaluate((serializedData: string) => {
-    // 将序列化的数据存储到 window 对象
-    (window as any).__mockFileSystemData = JSON.parse(serializedData);
-  }, JSON.stringify({ name: 'test-project' }));
+  await page.evaluate(
+    (serializedData: string) => {
+      // 将序列化的数据存储到 window 对象
+      (window as any).__mockFileSystemData = JSON.parse(serializedData);
+    },
+    JSON.stringify({ name: 'test-project' })
+  );
 }

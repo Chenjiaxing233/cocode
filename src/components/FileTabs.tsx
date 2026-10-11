@@ -120,8 +120,12 @@ export default function FileTabs({ onPreview }: { onPreview: () => void }) {
           <button
             className="tab-preview-action"
             onClick={onPreview}
-            title={isMarkdown ? '预览当前 Markdown 文件' : '执行当前 JS/TS 文件'}
-            aria-label={isMarkdown ? '预览当前 Markdown 文件' : '执行当前 JS/TS 文件'}
+            title={
+              isMarkdown ? '预览当前 Markdown 文件' : '执行当前 JS/TS 文件'
+            }
+            aria-label={
+              isMarkdown ? '预览当前 Markdown 文件' : '执行当前 JS/TS 文件'
+            }
           >
             {isMarkdown ? <PreviewIcon size={16} /> : <RunIcon size={16} />}
           </button>

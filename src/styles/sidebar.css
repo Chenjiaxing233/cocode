@@ -227,7 +227,6 @@
   color: var(--text-faint);
 }
 
-
 /* ── 侧边栏图标按钮内的 SVG ── */
 .sidebar-action-btn {
   display: inline-flex;

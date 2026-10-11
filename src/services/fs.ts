@@ -16,9 +16,7 @@ let rootHandle: FileSystemDirectoryHandle | null = null;
 const singleFileHandles = new Map<string, FileSystemFileHandle>();
 
 /** 检查当前浏览器是否支持本地文件访问能力。 */
-function assertFileSystemAccessSupport(
-  operation: 'directory' | 'file'
-): void {
+function assertFileSystemAccessSupport(operation: 'directory' | 'file'): void {
   const supported =
     operation === 'directory'
       ? typeof window.showDirectoryPicker === 'function'

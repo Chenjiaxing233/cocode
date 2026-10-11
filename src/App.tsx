@@ -11,6 +11,7 @@ import ActivityBar, { type SideView } from './components/ActivityBar';
 import FileTabs from './components/FileTabs';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
+import ChatPanel from './components/ChatPanel';
 import { Toast } from './components/Toast';
 import { useCollab } from './hooks/useCollab';
 import './styles/common.css';
@@ -68,7 +69,9 @@ function AppContent() {
 
     const onMove = (ev: globalThis.MouseEvent) => {
       if (!previewDraggingRef.current) return;
-      setPreviewWidth(Math.min(720, Math.max(280, window.innerWidth - ev.clientX)));
+      setPreviewWidth(
+        Math.min(720, Math.max(280, window.innerWidth - ev.clientX))
+      );
     };
     const onUp = () => {
       previewDraggingRef.current = false;
@@ -156,8 +159,10 @@ function AppContent() {
         <ActivityBar active={sideView} onChange={setSideView} />
         {sideView === 'explorer' ? (
           <Sidebar width={sidebarWidth} />
-        ) : (
+        ) : sideView === 'search' ? (
           <SearchPanel width={sidebarWidth} />
+        ) : (
+          <ChatPanel width={sidebarWidth} />
         )}
         <div
           className="sidebar-resizer"
@@ -177,7 +182,10 @@ function AppContent() {
               role="separator"
               aria-orientation="vertical"
             />
-            <Preview width={previewWidth} onClose={() => setPreviewOpen(false)} />
+            <Preview
+              width={previewWidth}
+              onClose={() => setPreviewOpen(false)}
+            />
           </>
         )}
       </div>

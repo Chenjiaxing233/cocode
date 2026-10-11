@@ -69,6 +69,16 @@ export const SearchIcon = (props: IconProps) => (
   <Codicon name="search" {...props} />
 );
 
+/** 协助聊天 */
+export const CommentDiscussionIcon = (props: IconProps) => (
+  <Codicon name="comment-discussion" {...props} />
+);
+
+/** 发送 */
+export const SendIcon = (props: IconProps) => (
+  <Codicon name="send" {...props} />
+);
+
 /** 区分大小写 */
 export const CaseSensitiveIcon = (props: IconProps) => (
   <Codicon name="case-sensitive" {...props} />

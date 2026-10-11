@@ -14,7 +14,10 @@ export { expect } from '@playwright/test';
 /**
  * 等待 Toast 消息出现
  */
-export async function waitForToast(page: any, type: 'success' | 'error' | 'warning' | 'info') {
+export async function waitForToast(
+  page: any,
+  type: 'success' | 'error' | 'warning' | 'info'
+) {
   return page.waitForSelector(`.toast-${type}`, { timeout: 5000 });
 }
 

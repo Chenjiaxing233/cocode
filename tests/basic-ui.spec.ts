@@ -20,15 +20,21 @@ test.describe('基础 UI 测试', () => {
     await expect(page.locator('.sidebar-title')).toHaveText('Explorer');
 
     // 检查打开按钮
-    await expect(page.locator('button', { hasText: 'Open File' })).toBeVisible();
-    await expect(page.locator('button', { hasText: 'Open Folder' })).toBeVisible();
+    await expect(
+      page.locator('button', { hasText: 'Open File' })
+    ).toBeVisible();
+    await expect(
+      page.locator('button', { hasText: 'Open Folder' })
+    ).toBeVisible();
   });
 
   test('应该能够切换主题', async ({ page }) => {
     await page.goto('/');
 
     // 点击主题切换按钮
-    const themeBtn = page.locator('.theme-btn').filter({ hasText: /Light|Dark/ });
+    const themeBtn = page
+      .locator('.theme-btn')
+      .filter({ hasText: /Light|Dark/ });
     const initialText = await themeBtn.textContent();
 
     await themeBtn.click();
@@ -44,7 +50,9 @@ test.describe('基础 UI 测试', () => {
     await page.goto('/');
 
     // 检查编辑器占位符
-    await expect(page.locator('.editor-placeholder')).toHaveText('No file open');
+    await expect(page.locator('.editor-placeholder')).toHaveText(
+      'No file open'
+    );
   });
 });
 
@@ -55,7 +63,7 @@ test.describe('Toast 通知测试', () => {
     // 注入测试代码来触发 Toast
     await page.evaluate(() => {
       const event = new CustomEvent('show-toast', {
-        detail: { message: '测试消息', type: 'success' }
+        detail: { message: '测试消息', type: 'success' },
       });
       window.dispatchEvent(event);
     });
@@ -86,7 +94,9 @@ test.describe('键盘导航测试', () => {
     await page.keyboard.press('Tab');
 
     // 检查焦点是否在第一个可聚焦元素上
-    const focusedElement = await page.evaluate(() => document.activeElement?.className);
+    const focusedElement = await page.evaluate(
+      () => document.activeElement?.className
+    );
     expect(focusedElement).toBeTruthy();
   });
 });
